@@ -1,7 +1,9 @@
+import * as SequelizeModels from './sequelize'
+
 declare global {
   namespace Express {
     interface Request {
-      user: Models.User
+      user: SequelizeModels.UserAttributes
     }
   }
   namespace NodeJS {
@@ -9,6 +11,7 @@ declare global {
       NODE_ENV: 'development' | 'production'
       PORT?: string
       SECRET: string
+      DATABASE_URL: string
       AWS_ACCESS_KEY_ID: string
       AWS_SECRET_ACCESS_KEY: string
       S3_BUCKET_NAME: string
@@ -16,56 +19,4 @@ declare global {
   }
 }
 
-export namespace Models {
-  export type User = {
-    id: number
-    email: string
-    password: string
-    username: string
-    updatedAt: Date
-    createdAt: Date
-  }
-  export type Post = {
-    id: number
-    userId: number
-    content: string
-    updatedAt: Date
-    createdAt: Date
-  }
-  export type FriendRequest = {
-    id: number
-    requesterId: number
-    requesteeId: number
-    updatedAt: Date
-    createdAt: Date
-  }
-  export type Friend = {
-    id: number
-    user1Id: number
-    user2Id: number
-    updatedAt: Date
-    createdAt: Date
-  }
-  export type Like = {
-    id: number
-    userId: number
-    postId: number
-    updatedAt: Date
-    createdAt: Date
-  }
-  export type Chat = {
-    id: number
-    user1Id: number
-    user2Id: number
-    updatedAt: Date
-    createdAt: Date
-  }
-  export type Message = {
-    id: number
-    content: string
-    chatId: number
-    userId: number
-    updatedAt: Date
-    createdAt: Date
-  }
-}
+export { SequelizeModels }

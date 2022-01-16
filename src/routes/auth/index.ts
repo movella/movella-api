@@ -1,10 +1,9 @@
-import { Model, Op } from 'sequelize'
+import * as yup from 'yup'
 
 import { HttpException } from '../../exceptions/httpexception'
 import { Models } from '../../services/sequelize'
+import { Op } from 'sequelize'
 import { Router } from 'express'
-import { Models as _Models } from '../../typescript'
-import { matches } from '../../utils/validation'
 import { sha256 } from '../../utils/crypto'
 import { sign } from '../../middleware/jwt'
 
@@ -14,7 +13,16 @@ authRouter.post('/login', async (req, res, next) => {
   const email = req.body.email
   const password = req.body.password
 
+  const schema = yup.object().shape({
+    email: yup.string().email(),
+    password: yup.string(),
+  })
+
   try {
+    if (!(await schema.isValid({ email, password }))) {
+      throw 'Invalid data'
+    }
+
     const user = await Models.User.findOne({
       attributes: {
         exclude: ['password'],
@@ -35,6 +43,7 @@ authRouter.post('/login', async (req, res, next) => {
       next(new HttpException(400, 'User not found'))
     }
   } catch (error) {
+    console.log(error)
     next(new HttpException(400, 'Invalid login data'))
   }
 })
@@ -44,18 +53,22 @@ authRouter.post('/register', async (req, res, next) => {
   const password = req.body.password
   const username = req.body.username
 
-  try {
-    matches(username, 'string', 'Invalid username')
-    matches(email, 'string', 'Invalid email')
-    matches(password, 'string', 'Invalid password')
-  } catch (error) {
-    return void next(new HttpException(400, error))
-  }
+  const schema = yup.object().shape({
+    email: yup.string().email(),
+    password: yup.string(),
+    username: yup.string(),
+  })
 
   try {
-    const user = await Models.User.create<Model<_Models.User, {}>>({
+    if (!(await schema.isValid({ email, password, username }))) {
+      throw 'Invalid data'
+    }
+
+    const user = await Models.User.create({
+      access: 'default',
       email: email,
       password: sha256(password),
+      picture: 'user-default',
       username: username,
     })
 

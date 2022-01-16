@@ -1,7 +1,6 @@
 import { HttpException } from '../../exceptions/httpexception'
 import { Models } from '../../services/sequelize'
 import { Router } from 'express'
-import { matches } from '../../utils/validation'
 import { sha256 } from '../../utils/crypto'
 import { sign } from '../../middleware/jwt'
 
@@ -65,11 +64,11 @@ userRouter.post('/update', async (req, res, next) => {
       email: email,
     }
 
-    matches(username, 'string', 'Invalid username')
-    matches(email, 'string', 'Invalid email')
+    // matches(username, 'string', 'Invalid username')
+    // matches(email, 'string', 'Invalid email')
 
     if (password !== undefined) {
-      matches(password, 'string', 'Invalid password')
+      // matches(password, 'string', 'Invalid password')
       Object.assign(updateObject, { password: sha256(password) })
     }
 

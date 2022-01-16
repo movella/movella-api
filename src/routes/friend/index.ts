@@ -3,7 +3,7 @@ import { Model, Op } from 'sequelize'
 import { HttpException } from '../../exceptions/httpexception'
 import { Models } from '../../services/sequelize'
 import { Router } from 'express'
-import { Models as _Models } from '../../typescript'
+import { SequelizeModels } from '../../typescript'
 
 export const friendRouter = Router()
 
@@ -16,7 +16,7 @@ export const friendRouter = Router()
 //   }
 
 //   try {
-//     await Models.FriendRequest.create<Model<_Models.FriendRequest, {}>>({
+//     await Models.FriendRequest.create<Model<SequelizeModels.FriendRequest, {}>>({
 //       requesterId: req.user.id,
 //       requesteeId: requesteeId,
 //     })
@@ -66,22 +66,22 @@ friendRouter.post('/remove', async (req, res, next) => {
   }
 
   try {
-    await Models.Friend.destroy({
-      where: {
-        [Op.or]: [
-          {
-            [Op.and]: {
-              id: id,
-              user1Id: req.user.id,
-            },
-            [Op.and]: {
-              id: id,
-              user2Id: req.user.id,
-            },
-          },
-        ],
-      },
-    })
+    // await Models.Friend.destroy({
+    //   where: {
+    //     [Op.or]: [
+    //       {
+    //         [Op.and]: {
+    //           id: id,
+    //           user1Id: req.user.id,
+    //         },
+    //         [Op.and]: {
+    //           id: id,
+    //           user2Id: req.user.id,
+    //         },
+    //       },
+    //     ],
+    //   },
+    // })
 
     res.json({
       message: 'Friend removed',
@@ -103,9 +103,9 @@ friendRouter.post('/remove', async (req, res, next) => {
 //   try {
 //     const request = await Models.FriendRequest.findOne<
 //       Model<
-//         _Models.FriendRequest & {
-//           requesterUser: Omit<_Models.User, 'password'>
-//           requesteeUser: Omit<_Models.User, 'password'>
+//         SequelizeModels.FriendRequest & {
+//           requesterUser: Omit<SequelizeModels.User, 'password'>
+//           requesteeUser: Omit<SequelizeModels.User, 'password'>
 //         },
 //         {}
 //       >
@@ -136,7 +136,7 @@ friendRouter.post('/remove', async (req, res, next) => {
 //       ],
 //     })
 
-//     await Models.Friend.create<Model<_Models.Friend, {}>>({
+//     await Models.Friend.create<Model<SequelizeModels.Friend, {}>>({
 //       user1Id: request.getDataValue('requesterId'),
 //       user2Id: request.getDataValue('requesteeId'),
 //     })
@@ -154,53 +154,53 @@ friendRouter.post('/remove', async (req, res, next) => {
 
 friendRouter.post('/all', async (req, res, next) => {
   try {
-    const friends = await Models.Friend.findAll({
-      where: {
-        [Op.or]: {
-          user1Id: req.user.id,
-          user2Id: req.user.id,
-        },
-      },
-      include: [
-        {
-          model: Models.User,
-          as: 'user1',
-          foreignKey: 'user1Id',
-          attributes: {
-            exclude: ['password', 'email'],
-          },
-        },
-        {
-          model: Models.User,
-          as: 'user2',
-          foreignKey: 'user2Id',
-          attributes: {
-            exclude: ['password', 'email'],
-          },
-        },
-      ],
-    })
+    // const friends = await Models.Friend.findAll({
+    //   where: {
+    //     [Op.or]: {
+    //       user1Id: req.user.id,
+    //       user2Id: req.user.id,
+    //     },
+    //   },
+    //   include: [
+    //     {
+    //       model: Models.User,
+    //       as: 'user1',
+    //       foreignKey: 'user1Id',
+    //       attributes: {
+    //         exclude: ['password', 'email'],
+    //       },
+    //     },
+    //     {
+    //       model: Models.User,
+    //       as: 'user2',
+    //       foreignKey: 'user2Id',
+    //       attributes: {
+    //         exclude: ['password', 'email'],
+    //       },
+    //     },
+    //   ],
+    // })
 
-    const _friends = friends
-      .map(
-        (friend) =>
-          friend.get() as _Models.Friend & {
-            user1: Omit<_Models.User, 'password'>
-            user2: Omit<_Models.User, 'password'>
-          }
-      )
-      .map<
-        Omit<Omit<_Models.Friend, 'user1Id'>, 'user2Id'> & {
-          user: Omit<_Models.User, 'password'>
-        }
-      >((friend) => ({
-        createdAt: friend.createdAt,
-        id: friend.id,
-        updatedAt: friend.updatedAt,
-        user: req.user.id === friend.user1.id ? friend.user2 : friend.user1,
-      }))
+    // const _friends = friends
+    //   .map(
+    //     (friend) =>
+    //       friend.get() as SequelizeModels.Friend & {
+    //         user1: Omit<SequelizeModels.User, 'password'>
+    //         user2: Omit<SequelizeModels.User, 'password'>
+    //       }
+    //   )
+    //   .map<
+    //     Omit<Omit<SequelizeModels.Friend, 'user1Id'>, 'user2Id'> & {
+    //       user: Omit<SequelizeModels.User, 'password'>
+    //     }
+    //   >((friend) => ({
+    //     createdAt: friend.createdAt,
+    //     id: friend.id,
+    //     updatedAt: friend.updatedAt,
+    //     user: req.user.id === friend.user1.id ? friend.user2 : friend.user1,
+    //   }))
 
-    res.json(_friends)
+    res.json([])
   } catch (error) {
     console.log(error)
     next(new HttpException(400, 'Invalid data'))

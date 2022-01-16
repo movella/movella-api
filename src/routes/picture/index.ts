@@ -26,9 +26,9 @@ pictureRouter.post('/upload', async (req, res, next) => {
     const name = sha256Safe(`${scope}_${id}`)
 
     if (scope === 'profile') {
-      user.update({ profilePicture: name })
+      // user.update({ profilePicture: name })
     } else if (scope === 'cover') {
-      user.update({ coverPicture: name })
+      // user.update({ coverPicture: name })
     } else {
       throw 'Invalid scope'
     }

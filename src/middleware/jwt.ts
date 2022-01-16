@@ -2,15 +2,18 @@ import * as dotenv from 'dotenv'
 import * as jwt from 'jsonwebtoken'
 
 import { HttpException } from '../exceptions/httpexception'
-import { Models } from '../typescript'
 import { RequestHandler } from 'express'
+import { SequelizeModels } from '../typescript'
 
 dotenv.config()
 
 export const validationHandler: RequestHandler = (req, res, next) => {
   try {
     const token = req.headers.authorization
-    const decoded = jwt.verify(token, process.env.SECRET) as Models.User
+    const decoded = jwt.verify(
+      token,
+      process.env.SECRET
+    ) as SequelizeModels.UserAttributes
     req.user = decoded
     next()
   } catch (error) {
@@ -18,6 +21,6 @@ export const validationHandler: RequestHandler = (req, res, next) => {
   }
 }
 
-export const sign = (user: Models.User) => {
+export const sign = (user: SequelizeModels.UserAttributes) => {
   return jwt.sign(user, process.env.SECRET)
 }

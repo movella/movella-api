@@ -6,6 +6,7 @@ import * as http from 'http'
 
 import { json, urlencoded } from 'body-parser'
 
+import { badRequestResponse } from './responses/badrequest'
 import { router } from './routes'
 import { sequelize } from './services/sequelize'
 import { useSocket } from './services/socket'
@@ -19,14 +20,26 @@ const setup = async () => {
     .catch(console.log)
 
   await sequelize
-    .sync({ alter: true, force: false, logging: false })
+    .sync({ alter: true, force: true, logging: false })
     .then(() => console.log('Database sync ok'))
     .catch(console.log)
 
   const app = express()
 
   app.use(cors())
-  app.use(json())
+
+  app.use((req, res, next) => {
+    json()(req, res, (err) => {
+      if (err) {
+        console.error(err)
+
+        return badRequestResponse(res)
+      }
+
+      next()
+    })
+  })
+
   app.use(urlencoded({ extended: true }))
   app.use(fileUpload({ debug: true, createParentPath: true }))
   app.use('/api/', router)
