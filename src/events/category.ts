@@ -7,28 +7,23 @@ import { Models } from '../services/sequelize'
 import { SequelizeModels } from '../typescript'
 import { Socket } from 'socket.io'
 
-type AllFurnitureParams = {}
+type AllCategoriesParams = {}
 
-type CreateFurnitureParams = {
-  category: number
-  depth: number
-  height: number
-  monthlyCost: number
+type CreateCategoryParams = {
   name: string
-  width: number
 }
 
-export const furnitureEvents = (
+export const categoryEvents = (
   socket: Socket,
   user: Omit<SequelizeModels.UserAttributes, 'password'>
 ) => {
   socket.on(
-    SocketEvents.allFurniture,
-    async (params: AllFurnitureParams, callback: Function) => {
+    SocketEvents.allCategories,
+    async (params: AllCategoriesParams, callback: Function) => {
       try {
-        const furniture = await Models.Furniture.findAll()
+        const categories = await Models.Category.findAll()
 
-        callback(socketResponse('Listing furniture.', furniture))
+        callback(socketResponse('Listing categories.', categories))
       } catch (error) {
         if (error instanceof CustomException) {
           return callback(socketMessage(error.message))
@@ -42,45 +37,26 @@ export const furnitureEvents = (
   )
 
   socket.on(
-    SocketEvents.createFurniture,
-    async (params: CreateFurnitureParams, callback: Function) => {
+    SocketEvents.createCategory,
+    async (params: CreateCategoryParams, callback: Function) => {
       try {
-        // if (user.access === 'default') {
+        // if (user.access !== 'admin') {
         //   throw new CustomException('Unauthorized.')
         // }
 
         const schema = yup.object().shape({
-          category: yup.number(),
-          depth: yup.number(),
-          height: yup.number(),
-          monthlyCost: yup.number(),
           name: yup.string(),
-          width: yup.number(),
         })
 
         if (!(await schema.isValid(params))) {
           throw new CustomException('Invalid data.')
         }
 
-        const category = await Models.Category.findByPk(params.category)
-
-        if (!category) {
-          throw new CustomException('Category not found.')
-        }
-
-        await Models.Furniture.create({
-          available: true,
-          categoryId: category.get().id,
-          depth: params.depth,
-          height: params.height,
-          monthlyCost: params.monthlyCost,
+        await Models.Category.create({
           name: params.name,
-          picture: 'default-furniture',
-          userId: user.id,
-          width: params.width,
         })
 
-        callback(socketMessage('Furniture created.'))
+        callback(socketMessage('Category created.'))
       } catch (error) {
         if (error instanceof CustomException) {
           return callback(socketMessage(error.message))

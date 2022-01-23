@@ -1,21 +1,25 @@
 import * as jwt from 'jsonwebtoken'
 
-import { Socket, Server as socketIo } from 'socket.io'
-
-import { Models } from './sequelize'
-import { Op } from 'sequelize'
 import { SequelizeModels } from '../typescript'
 import { Server } from 'http'
+import { categoryEvents } from '../events/category'
 import { furnitureEvents } from '../events/furniture'
+import { Server as socketIo } from 'socket.io'
 
-// type Clients = {
-//   [type: number]: Socket
-// }
-
-// const clients: Clients = {}
+export const socketMessage = (message: string) => ({ message })
+export const socketResponse = (message: string, data: Object | any[]) => ({
+  message,
+  data,
+})
 
 export const SocketEvents = {
+  allCategories: 'all_categories',
+  createCategory: 'create_category',
+
   allFurniture: 'all_furniture',
+  createFurniture: 'create_furniture',
+
+  error: 'error',
 }
 
 export const useSocket = (server: Server) => {
@@ -25,14 +29,13 @@ export const useSocket = (server: Server) => {
     console.log('Socket client connected')
 
     const token = socket.request.headers.authorization
+
     const decoded = jwt.verify(token, process.env.SECRET) as Omit<
       SequelizeModels.UserAttributes,
       'password'
     >
 
-    // clients[decoded.id] = socket
-
-    // useMessage(socket, decoded)
+    categoryEvents(socket, decoded)
 
     furnitureEvents(socket, decoded)
   })
