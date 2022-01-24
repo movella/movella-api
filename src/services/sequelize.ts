@@ -153,6 +153,7 @@ const User = sequelize.define<SequelizeModels.UserInstance>('user', {
   email: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   line1: DataTypes.STRING,
   line2: DataTypes.STRING,
@@ -169,6 +170,7 @@ const User = sequelize.define<SequelizeModels.UserInstance>('user', {
   username: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   zipCode: DataTypes.STRING,
 })

@@ -1,8 +1,9 @@
 import * as yup from 'yup'
 
+import { Op, UniqueConstraintError, ValidationErrorItem } from 'sequelize'
+
 import { HttpException } from '../../exceptions/httpexception'
 import { Models } from '../../services/sequelize'
-import { Op } from 'sequelize'
 import { Router } from 'express'
 import { sha256 } from '../../utils/crypto'
 import { sign } from '../../middleware/jwt'
@@ -77,6 +78,23 @@ authRouter.post('/register', async (req, res, next) => {
     res.json(user)
   } catch (error) {
     console.log(error)
+
+    if (error.name === 'SequelizeUniqueConstraintError') {
+      // fix
+
+      const errors: ValidationErrorItem[] = error.errors
+
+      const violation = errors[0]
+
+      // fix
+      switch (violation.path) {
+        case 'username':
+          return void next(new HttpException(400, 'Invalid username'))
+        case 'email':
+          return void next(new HttpException(400, 'Invalid email'))
+      }
+    }
+
     next(new HttpException(400, 'Invalid data'))
   }
 })
