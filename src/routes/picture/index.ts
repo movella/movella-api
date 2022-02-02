@@ -9,7 +9,7 @@ export const pictureRouter = Router()
 pictureRouter.post('/upload', async (req, res, next) => {
   try {
     const scope: 'profile' | 'cover' = req.body.scope
-    const _file = req.files.image
+    const _file = req?.files?.image
     const file = Array.isArray(_file) ? _file[0] : _file
 
     const id = req.user.id.toString()
@@ -33,16 +33,18 @@ pictureRouter.post('/upload', async (req, res, next) => {
       throw 'Invalid scope'
     }
 
-    await uploadFile({
-      body: file.data,
-      key: name,
-      id: req.user.id.toString(),
-      scope: scope,
-    })
+    if (file !== undefined) {
+      await uploadFile({
+        body: file.data,
+        key: name,
+        id: req.user.id.toString(),
+        scope: scope,
+      })
 
-    res.json({
-      message: 'Picture uploaded',
-    })
+      res.json({
+        message: 'Picture uploaded',
+      })
+    }
   } catch (error) {
     console.log(error)
     next(new HttpException(400, 'Invalid data'))

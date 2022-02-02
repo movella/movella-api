@@ -9,6 +9,8 @@ import { Socket } from 'socket.io'
 
 type AllFurnitureParams = {}
 
+type RecommendedParams = {}
+
 type CreateFurnitureParams = {
   category: number
   depth: number
@@ -24,26 +26,51 @@ export const furnitureEvents = (
 ) => {
   socket.on(
     SocketEvents.allFurniture,
-    async (params: AllFurnitureParams, callback: Function) => {
+    async (params: AllFurnitureParams, callback?: Function) => {
       try {
         const furniture = await Models.Furniture.findAll()
 
-        callback(socketResponse('Listing furniture.', furniture))
+        if (typeof callback === 'function')
+          callback(socketResponse('Listing furniture.', furniture))
       } catch (error) {
         if (error instanceof CustomException) {
-          return callback(socketMessage(error.message))
+          if (typeof callback === 'function')
+            return callback(socketMessage(error.message))
         }
 
         console.log(error)
 
-        return callback(socketMessage('Something went wrong.'))
+        if (typeof callback === 'function')
+          callback(socketMessage('Something went wrong.'))
+      }
+    }
+  )
+
+  socket.on(
+    SocketEvents.recommended,
+    async (params: RecommendedParams, callback?: Function) => {
+      try {
+        const furniture = await Models.Furniture.findAll()
+
+        if (typeof callback === 'function')
+          callback(socketResponse('Listing furniture.', furniture))
+      } catch (error) {
+        if (error instanceof CustomException) {
+          if (typeof callback === 'function')
+            return callback(socketMessage(error.message))
+        }
+
+        console.log(error)
+
+        if (typeof callback === 'function')
+          callback(socketMessage('Something went wrong.'))
       }
     }
   )
 
   socket.on(
     SocketEvents.createFurniture,
-    async (params: CreateFurnitureParams, callback: Function) => {
+    async (params: CreateFurnitureParams, callback?: Function) => {
       try {
         // if (user.access === 'default') {
         //   throw new CustomException('Unauthorized.')
@@ -80,15 +107,17 @@ export const furnitureEvents = (
           width: params.width,
         })
 
-        callback(socketMessage('Furniture created.'))
+        if (typeof callback === 'function')
+          callback(socketMessage('Furniture created.'))
       } catch (error) {
         if (error instanceof CustomException) {
-          return callback(socketMessage(error.message))
+          if (typeof callback === 'function')
+            return callback(socketMessage(error.message))
         }
 
         console.log(error)
-
-        return callback(socketMessage('Something went wrong.'))
+        if (typeof callback === 'function')
+          callback(socketMessage('Something went wrong.'))
       }
     }
   )

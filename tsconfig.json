@@ -10,6 +10,7 @@
     "module": "CommonJS",
     "sourceMap": true,
     "target": "ES2020",
-    "moduleResolution": "Node"
+    "moduleResolution": "Node",
+    "strictNullChecks": true
   }
 }

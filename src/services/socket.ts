@@ -16,6 +16,9 @@ export const SocketEvents = {
   allCategories: 'all_categories',
   createCategory: 'create_category',
 
+  // fix
+  recommended: 'recommended',
+
   allFurniture: 'all_furniture',
   createFurniture: 'create_furniture',
 
@@ -23,21 +26,27 @@ export const SocketEvents = {
 }
 
 export const useSocket = (server: Server) => {
-  const io = new socketIo(server)
+  const io = new socketIo(server, { allowEIO3: true })
 
   io.on('connection', (socket) => {
     console.log('Socket client connected')
 
     const token = socket.request.headers.authorization
 
-    const decoded = jwt.verify(token, process.env.SECRET) as Omit<
-      SequelizeModels.UserAttributes,
-      'password'
-    >
+    if (token === undefined) return
 
-    categoryEvents(socket, decoded)
+    try {
+      const decoded = (jwt.verify(
+        token,
+        process.env.SECRET
+      ) as unknown) as Omit<SequelizeModels.UserAttributes, 'password'>
 
-    furnitureEvents(socket, decoded)
+      categoryEvents(socket, decoded)
+
+      furnitureEvents(socket, decoded)
+    } catch (error) {
+      console.error(error)
+    }
   })
 }
 

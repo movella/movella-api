@@ -10,10 +10,13 @@ dotenv.config()
 export const validationHandler: RequestHandler = (req, res, next) => {
   try {
     const token = req.headers.authorization
-    const decoded = jwt.verify(
+
+    if (token === undefined) throw new Error()
+
+    const decoded = (jwt.verify(
       token,
       process.env.SECRET
-    ) as SequelizeModels.UserAttributes
+    ) as unknown) as SequelizeModels.UserAttributes
     req.user = decoded
     next()
   } catch (error) {

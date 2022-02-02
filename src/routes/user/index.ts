@@ -36,7 +36,7 @@ userRouter.post('/validate', async (req, res, next) => {
       },
     })
 
-    res.setHeader('authorization', sign(user.get()))
+    if (user !== null) res.setHeader('authorization', sign(user.get()))
 
     res.json(user)
   } catch (error) {
@@ -72,9 +72,11 @@ userRouter.post('/update', async (req, res, next) => {
       Object.assign(updateObject, { password: sha256(password) })
     }
 
-    const updatedUser = await user.update(updateObject)
+    if (user !== null) {
+      const updatedUser = await user.update(updateObject)
 
-    res.setHeader('authorization', sign(updatedUser.get()))
+      res.setHeader('authorization', sign(updatedUser.get()))
+    }
 
     res.json(user)
   } catch (error) {
